@@ -1,4 +1,6 @@
 import express from "express";
+import bcrypt from "bcryptjs";
+import cors from "cors";
 
 const PORT = 3000;
 
@@ -27,6 +29,7 @@ const database = {
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(cors());
 
 app.get("/", (req, res) => {
     res.send(database.users);
@@ -46,18 +49,21 @@ app.post("/signin", (req, res) => {
         req.body.email === database.users[0].email &&
         req.body.password === database.users[0].password
     ) {
-        res.send("Success Welcome back");
+        delete database.users[0].password;
+        res.send(database.users[0]);
     }
     res.status(404).send("Error login in");
 });
 
 app.post("/register", (req, res) => {
     const { name, email, password } = req.body;
+    bcrypt.hash(password, 10, (err, hash) => {
+        console.log(hash);
+    });
     const newUser = {
         id: 3,
         name,
         email,
-        password,
         entries: 0,
         joined: new Date(),
     };
