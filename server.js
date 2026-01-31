@@ -68,17 +68,17 @@ app.post("/register", (req, res) => {
         joined: new Date(),
     };
     database.users.push(newUser);
-    res.send(newUser);
+    res.status().send("User registered");
 });
 
-app.post("/image", (req, res) => {
+app.put("/image", (req, res) => {
     const { id } = req.body;
     const [foundUser] = database.users.filter((user) => user.id === Number(id));
     if (!foundUser) {
         res.status(404).send("User not found");
     }
     foundUser.entries += 1;
-    res.send(foundUser);
+    res.send(foundUser.entries);
 });
 
 app.listen(PORT, () => {
