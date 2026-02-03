@@ -1,10 +1,24 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import cors from "cors";
+import knex from "knex";
 
 const PORT = 3000;
 
 const app = express();
+
+const config = {
+    client: "pg",
+    connection: {
+        host: "127.0.0.1",
+        port: "5432",
+        user: "postgres",
+        password: "",
+        database: "smart-brain",
+    },
+};
+
+const db = knex(config);
 
 const database = {
     users: [
@@ -60,15 +74,11 @@ app.post("/register", (req, res) => {
     bcrypt.hash(password, 10, (err, hash) => {
         console.log(hash);
     });
-    const newUser = {
-        id: 3,
-        name,
-        email,
-        entries: 0,
-        joined: new Date(),
-    };
-    database.users.push(newUser);
-    res.status().send("User registered");
+    db("users")
+        .returning("*")
+        .insert({ name, email, joined: new Date() })
+        .then((user) => res.send(user[0]))
+        .catch(() => res.status(400).send("Unable to register"));
 });
 
 app.put("/image", (req, res) => {
