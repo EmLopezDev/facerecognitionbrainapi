@@ -51,11 +51,17 @@ app.get("/", (req, res) => {
 
 app.get("/profile/:id", (req, res) => {
     const { id } = req.params;
-    const [foundUser] = database.users.filter((user) => user.id === Number(id));
-    if (!foundUser) {
-        res.status(404).send("User not found");
-    }
-    res.send(foundUser);
+    db.select("*")
+        .from("users")
+        .where({ id })
+        .then((user) => {
+            if (user.length) {
+                res.send(user[0]);
+            } else {
+                res.status(400).send("User not found");
+            }
+        })
+        .catch(() => res.status(400).send("Error getting user"));
 });
 
 app.post("/signin", (req, res) => {
@@ -75,7 +81,6 @@ app.post("/register", (req, res) => {
         console.log(hash);
     });
     db("users")
-        .returning("*")
         .insert({ name, email, joined: new Date() })
         .then((user) => res.send(user[0]))
         .catch(() => res.status(400).send("Unable to register"));
@@ -83,12 +88,12 @@ app.post("/register", (req, res) => {
 
 app.put("/image", (req, res) => {
     const { id } = req.body;
-    const [foundUser] = database.users.filter((user) => user.id === Number(id));
-    if (!foundUser) {
-        res.status(404).send("User not found");
-    }
-    foundUser.entries += 1;
-    res.send(foundUser.entries);
+    db("users")
+        .where("id", "=", id)
+        .increment("entries", 1)
+        .returning("entries")
+        .then((entries) => res.send(entries[0].entries))
+        .catch(() => res.status(400).send("Unable to update entries"));
 });
 
 app.listen(PORT, () => {
