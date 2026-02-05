@@ -39,10 +39,10 @@ app.get("/profile/:id", (req, res) => {
             if (user.length) {
                 res.send(user[0]);
             } else {
-                res.status(400).send("User not found");
+                res.status(400).send({ msg: "User not found" });
             }
         })
-        .catch(() => res.status(400).send("Error getting user"));
+        .catch(() => res.status(400).send({ msg: "Error getting user" }));
 });
 
 app.post("/signin", (req, res) => {
@@ -60,14 +60,18 @@ app.post("/signin", (req, res) => {
                             res.send(user[0]);
                         })
                         .catch((err) =>
-                            res.status(400).send("Unable to get user", err),
+                            res
+                                .status(400)
+                                .send({ msg: "Unable to get user" }, err),
                         );
                 } else {
-                    res.status(400).send("Wrong Credentials", err);
+                    res.status(400).send({ msg: "Wrong Credentials" }, err);
                 }
             });
         })
-        .catch((err) => res.status(400).send("Wrong Credentials", err));
+        .catch((err) =>
+            res.status(400).send({ msg: "User doesn't exist" }, err),
+        );
 });
 
 app.post("/register", (req, res) => {
@@ -83,20 +87,18 @@ app.post("/register", (req, res) => {
                     .returning("email")
                     .then((loginEmail) => {
                         trx.insert({
-                            name,
+                            name: name,
                             email: loginEmail[0].email,
                             joined: new Date(),
                         })
                             .into("users")
-                            .then(() =>
-                                res.status(200).send("User Registered"),
-                            );
+                            .then(() => res.status(200).send([]));
                     })
                     .then(trx.commit)
                     .catch(trx.rollback);
-            }).catch(() => res.status(400).send("Unable to register"));
+            }).catch(() => res.status(400).send({ msg: "Unable to register" }));
         } else {
-            console.error("Error Registering", err);
+            console.error({ msg: "Error while registering" }, err);
         }
     });
 });
@@ -108,7 +110,7 @@ app.put("/image", (req, res) => {
         .increment("entries", 1)
         .returning("entries")
         .then((entries) => res.send(entries[0].entries))
-        .catch(() => res.status(400).send("Unable to update entries"));
+        .catch(() => res.status(400).send({ msg: "Unable to update entries" }));
 });
 
 app.listen(PORT, () => {
