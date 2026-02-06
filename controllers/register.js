@@ -21,7 +21,8 @@ const handleRegister = (req, res, db, bcrypt, bCryptSaltRounds) => {
                             joined: new Date(),
                         })
                             .into("users")
-                            .then(() => res.status(200).send([]));
+                            .returning("id")
+                            .then((userId) => res.status(200).send(userId));
                     })
                     .then(trx.commit)
                     .catch(trx.rollback);

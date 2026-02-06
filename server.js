@@ -4,7 +4,7 @@ import cors from "cors";
 import knex from "knex";
 import handleRegister from "./controllers/register.js";
 import handleSignIn from "./controllers/signin.js";
-import handleImage from "./controllers/image.js";
+import { handleImageEntry, handleImageUrl } from "./controllers/image.js";
 import handleProfile from "./controllers/profile.js";
 
 const PORT = 3000;
@@ -39,7 +39,8 @@ app.post("/register", (req, res) =>
     handleRegister(req, res, db, bcrypt, bCryptSaltRounds),
 );
 
-app.put("/image", (req, res) => handleImage(req, res, db));
+app.put("/image", (req, res) => handleImageEntry(req, res, db));
+app.post("/imageurl", (req, res) => handleImageUrl(req, res));
 
 app.listen(PORT, () => {
     console.log(`App is running on PORT: ${PORT}`);
