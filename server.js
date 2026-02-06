@@ -7,7 +7,7 @@ import handleSignIn from "./controllers/signin.js";
 import { handleImageEntry, handleImageUrl } from "./controllers/image.js";
 import handleProfile from "./controllers/profile.js";
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 const app = express();
 
