@@ -22,7 +22,7 @@ const handleRegister = (req, res, db, bcrypt, bCryptSaltRounds) => {
                         })
                             .into("users")
                             .returning("id")
-                            .then((userId) => res.status(200).send(userId));
+                            .then((userId) => res.status(200).send(userId[0]));
                     })
                     .then(trx.commit)
                     .catch(trx.rollback);
